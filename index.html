@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>拼臉所｜用大家的五官拼出你的命定之臉</title>
+<meta name="description" content="拍一張自拍，回答 8 題，系統從大家捐出來的真人五官裡，拼出你的未來對象、最佳朋友、天敵和你家小孩的臉。">
+<meta property="og:title" content="拼臉所｜用大家的五官拼出你的命定之臉">
+<meta property="og:description" content="眼睛來自小美、鼻子來自阿凱——拼出你未來對象長怎樣。">
+<style>
+:root{--bg:#fff6ea;--ink:#2a1d14;--sub:#7a6555;--card:#fff;--line:#ecdcc8;--red:#e8433a;--yel:#ffc53d;--grn:#2f9e6e;--blu:#3b7dd8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.55}
+main{max-width:520px;margin:auto;padding:16px 16px 60px}
+h1{font-size:2rem;margin:.2em 0 .1em;letter-spacing:.04em}
+h2{font-size:1.25rem;margin:0 0 .5em}
+p{margin:.4em 0}
+.sub{color:var(--sub);font-size:.92rem}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:16px;margin:14px 0;box-shadow:4px 4px 0 var(--ink)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 16px;margin:8px 0;border:2px solid var(--ink);border-radius:14px;background:var(--yel);color:var(--ink);font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.alt{background:#fff}.btn.red{background:var(--red);color:#fff}.btn.sm{padding:9px 12px;font-size:.95rem;width:auto;display:inline-flex}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.hide{display:none!important}
+.tag{display:inline-block;background:var(--ink);color:#fff;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:.8rem;margin:10px 0}
+.steps div{background:#fff;border:2px dashed var(--line);border-radius:12px;padding:8px 4px}
+.steps b{display:block;font-size:1.4rem}
+#stage{position:relative;width:100%;max-width:360px;margin:auto}
+#stage canvas{width:100%;height:auto;border-radius:14px;display:block;background:#eee}
+.qnum{font-weight:800;color:var(--red)}
+.opts{display:grid;gap:8px;margin-top:10px}
+.opt{padding:13px 14px;border:2px solid var(--ink);border-radius:12px;background:#fff;font:inherit;font-size:1rem;text-align:left;cursor:pointer}
+.opt:active{background:var(--yel)}
+.bar{height:8px;background:var(--line);border-radius:9px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--red);transition:width .25s}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode{border:2px solid var(--ink);border-radius:14px;padding:12px 10px;background:#fff;font:inherit;text-align:left;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.mode b{display:block;font-size:1.05rem}.mode span{font-size:.8rem;color:var(--sub)}
+.mode.on{background:var(--yel)}
+.parts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}
+.part{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.78rem;border:2px solid var(--line);border-radius:10px;padding:5px 2px;background:#fff;cursor:pointer;user-select:none}
+.part img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;background:#eee}
+.part input{margin:0}
+.part.on{border-color:var(--grn);background:#eaf8f1}
+label.chk{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;margin:8px 0}
+label.chk input{margin-top:4px;width:18px;height:18px;flex:none}
+input[type=text]{width:100%;padding:11px;border:2px solid var(--ink);border-radius:10px;font:inherit;font-size:1rem}
+.credits{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.95rem;margin-top:10px}
+.credits dt{font-weight:800}.credits dd{margin:0}
+.score{font-size:2.6rem;font-weight:900;color:var(--red);line-height:1}
+.resTitle{font-size:1.3rem;font-weight:900;margin:6px 0 2px}
+.quote{background:#fff6d6;border-left:5px solid var(--yel);padding:8px 12px;border-radius:8px;margin:10px 0;font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1;min-width:130px}
+.msg{font-size:.9rem;color:var(--grn);font-weight:700;min-height:1.3em}
+.msg.err{color:var(--red)}
+.friends{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.friend{display:flex;align-items:center;gap:6px;background:#fff;border:2px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;font-size:.88rem}
+.friend img{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.friend button{border:0;background:none;color:var(--red);font-size:1rem;cursor:pointer;padding:0 2px}
+#shareImg{width:100%;border-radius:14px;border:2px solid var(--ink);margin-top:10px}
+.spin{width:44px;height:44px;border:5px solid var(--line);border-top-color:var(--red);border-radius:50%;animation:sp 1s linear infinite;margin:18px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+details summary{cursor:pointer;font-weight:800}
+footer{text-align:center;font-size:.8rem;color:var(--sub);margin-top:24px}
+footer a{color:var(--sub)}
+</style>
+</head>
+<body>
+<main>
+
+<!-- 首頁 -->
+<section id="sHome">
+  <span class="tag">真人五官拼貼實驗室</span>
+  <h1>拼臉所</h1>
+  <p>眼睛來自小美、鼻子來自阿凱、嘴巴來自隔壁班那個誰——用大家捐出來的五官，拼出<b>你命中注定的那張臉</b>。</p>
+  <div class="steps"><div><b>📸</b>拍自拍</div><div><b>📝</b>答 8 題</div><div><b>🧩</b>選模式</div><div><b>😱</b>看臉</div></div>
+  <div class="card">
+    <h2>先來一張正面自拍</h2>
+    <p class="sub">正面、光線亮、瀏海不要蓋住眉毛，效果最好。</p>
+    <button class="btn" id="bCam">📸 開相機拍一張</button>
+    <button class="btn alt" id="bPick">🖼️ 從相簿選照片</button>
+    <input type="file" id="fCam" accept="image/*" capture="user" class="hide">
+    <input type="file" id="fPick" accept="image/*" class="hide">
+    <p class="sub">🔒 照片只在你的手機上處理，<b>不會上傳</b>。除非你之後自己勾選「捐五官」，而且只會上傳你勾的部位。</p>
+    <button class="btn alt hide" id="bResume">↩️ 用上次的臉繼續</button>
+  </div>
+</section>
+
+<!-- 偵測中 -->
+<section id="sLoad" class="hide">
+  <div class="card" style="text-align:center">
+    <div class="spin"></div>
+    <p id="loadTxt">正在找你的五官⋯</p>
+    <p class="sub">第一次會下載辨識模型（約 4MB），請稍等。</p>
+  </div>
+</section>
+
+<!-- 偵測結果 -->
+<section id="sGot" class="hide">
+  <div class="card">
+    <h2>抓到了！這是你的五官</h2>
+    <div id="stage"><canvas id="cvMe" width="360" height="450"></canvas></div>
+    <div class="parts" id="myParts"></div>
+    <button class="btn" id="bToQ">下一步：回答 8 題 →</button>
+    <button class="btn alt" id="bRetake">重拍一張</button>
+  </div>
+</section>
+
+<!-- 問題 -->
+<section id="sQ" class="hide">
+  <div class="card">
+    <div class="bar"><i id="qBar"></i></div>
+    <p class="qnum" id="qNum"></p>
+    <h2 id="qText"></h2>
+    <div class="opts" id="qOpts"></div>
+  </div>
+</section>
+
+<!-- 主選單 -->
+<section id="sHub" class="hide">
+  <div class="card">
+    <h2>你想拼誰的臉？</h2>
+    <div class="modes" id="modes"></div>
+    <p class="sub" id="poolInfo"></p>
+  </div>
+
+  <div class="card" id="donateCard">
+    <details id="dDonate">
+      <summary>🎁 捐出你的五官（讓別人拼到你）</summary>
+      <p class="sub">勾選願意分享的部位。別人拼臉時如果用到你的五官，會顯示你的暱稱。隨時可以收回。</p>
+      <div class="parts" id="donParts"></div>
+      <p class="sub" id="faceWarn" style="color:var(--red)"></p>
+      <input type="text" id="donName" maxlength="12" placeholder="顯示的暱稱（例如：小美）">
+      <label class="chk"><input type="checkbox" id="donAdult"><span>我已滿 18 歲，這是<b>我本人</b>的照片。</span></label>
+      <label class="chk"><input type="checkbox" id="donAgree"><span>我同意把勾選的部位存到雲端，讓其他玩家拼臉時使用。</span></label>
+      <button class="btn" id="bGive">捐出去</button>
+      <button class="btn alt hide" id="bTake">收回我的五官（從雲端刪除）</button>
+      <p class="msg" id="donMsg"></p>
+    </details>
+  </div>
+
+  <div class="card">
+    <details id="dFriends">
+      <summary>👯 加入朋友的照片（只在你手機上）</summary>
+      <p class="sub">雲端還沒什麼人捐的話，可以先拿朋友的照片來拼。這些照片<b>不會上傳</b>，記得先問過朋友喔。</p>
+      <div class="friends" id="friendList"></div>
+      <input type="text" id="frName" maxlength="12" placeholder="朋友的名字">
+      <button class="btn alt" id="bFriend">＋ 選朋友的照片</button>
+      <input type="file" id="fFriend" accept="image/*" class="hide">
+      <p class="msg" id="frMsg"></p>
+    </details>
+  </div>
+  <button class="btn alt" id="bRestart">從頭開始（換一張臉）</button>
+</section>
+
+<!-- 結果 -->
+<section id="sRes" class="hide">
+  <div class="card">
+    <span class="tag" id="resTag"></span>
+    <p class="resTitle" id="resTitle"></p>
+    <div style="display:flex;align-items:baseline;gap:8px"><span class="score" id="resScore"></span><span class="sub" id="resScoreLbl"></span></div>
+    <div id="stage2" style="max-width:360px;margin:12px auto 0"><canvas id="cvRes" width="360" height="450" style="width:100%;border-radius:14px;display:block"></canvas></div>
+    <div class="quote" id="resQuote"></div>
+    <dl class="credits" id="resCredits"></dl>
+    <p class="sub" id="resNote"></p>
+    <div class="row">
+      <button class="btn" id="bAgain">🎲 再拼一次</button>
+      <button class="btn alt" id="bBack">換個模式</button>
+    </div>
+    <button class="btn red" id="bShare">📤 存圖／分享</button>
+    <img id="shareImg" class="hide" alt="分享圖">
+    <p class="sub hide" id="shareHint">長按圖片可以存到相簿。</p>
+  </div>
+</section>
+
+<footer>
+  拼臉所 · 照片在你的裝置上處理 · 臉部辨識使用 Google MediaPipe<br>
+  捐出的五官可隨時收回 · 只限 18 歲以上本人照片
+</footer>
+</main>
+
+<script>
+'use strict';
+const CONFIG=Object.assign({
+  supabaseUrl:'https://qukavphitlehmidbkbru.supabase.co',
+  supabaseKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1a2F2cGhpdGxlaG1pZGJrYnJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2NzE2NTIsImV4cCI6MjEwODI0NzY1Mn0._Vg0CxZOaq5WN66JU566cucEQ38qf6RvtuRr3DDXFqY',
+  mpBundle:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs',
+  mpWasm:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm',
+  mpModel:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+  sbSrc:'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'
+},window.PINLIAN_CONFIG||{});
+
+const $=id=>document.getElementById(id);
+const W=360,H=450,EYE_L=[128,196],EYE_R=[232,196];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+
+/* ---------- 五官定義（MediaPipe 478 點） ---------- */
+const IDX={
+  eyeA:[33,7,163,144,145,153,154,155,133,173,157,158,159,160,161,246],
+  eyeB:[263,249,390,373,374,380,381,382,362,398,384,385,386,387,388,466],
+  browA:[70,63,105,66,107,55,65,52,53,46],
+  browB:[300,293,334,296,336,285,295,282,283,276],
+  nose:[168,193,245,188,174,217,126,142,129,98,97,2,326,327,358,371,355,437,399,412,465,417],
+  mouth:[61,146,91,181,84,17,314,405,321,375,291,409,270,269,267,0,37,39,40,185]
+};
+// 每個部位：哪些多邊形（點集合 + 放大倍率 sx,sy）
+const PARTS={
+  brow:{name:'眉毛',polys:[['browA',1.25,2.1],['browB',1.25,2.1]],blur:5},
+  eye:{name:'眼睛',polys:[['eyeA',1.45,2.3],['eyeB',1.45,2.3]],blur:5},
+  nose:{name:'鼻子',polys:[['nose',1.12,1.06]],blur:7},
+  mouth:{name:'嘴巴',polys:[['mouth',1.22,1.45]],blur:6}
+};
+const SLOT_ORDER=['face','brow','eye','nose','mouth'];
+const SLOT_NAME={face:'臉型＋髮型',brow:'眉毛',eye:'眼睛',nose:'鼻子',mouth:'嘴巴'};
+const PASTE_ORDER=['nose','mouth','eye','brow'];
+
+function center(pts){let x=0,y=0;for(const p of pts){x+=p[0];y+=p[1]}return[x/pts.length,y/pts.length]}
+function ptsOf(lm,key){return IDX[key].map(i=>lm[i])}
+function hull(P){const p=P.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);if(p.length<3)return p;const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];for(const q of p){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],q)<=0)lo.pop();lo.push(q)}for(let i=p.length-1;i>=0;i--){const q=p[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],q)<=0)up.pop();up.push(q)}up.pop();lo.pop();return lo.concat(up)}
+function polyFor(lm,key,sx,sy){const P=ptsOf(lm,key),c=center(P);return hull(P).map(p=>[c[0]+(p[0]-c[0])*sx,c[1]+(p[1]-c[1])*sy])}
+function partPolys(lm,part){return PARTS[part].polys.map(([k,sx,sy])=>polyFor(lm,k,sx,sy))}
+function partIdx(part){return PARTS[part].polys.flatMap(([k])=>IDX[k])}
+function bboxOf(polys,m){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const P of polys)for(const p of P){x0=Math.min(x0,p[0]);y0=Math.min(y0,p[1]);x1=Math.max(x1,p[0]);y1=Math.max(y1,p[1])}x0=Math.max(0,Math.floor(x0-m));y0=Math.max(0,Math.floor(y0-m));x1=Math.min(W,Math.ceil(x1+m));y1=Math.min(H,Math.ceil(y1+m));return{x:x0,y:y0,w:Math.max(1,x1-x0),h:Math.max(1,y1-y0)}}
+
+// 最小平方法相似變換 src→dst，回傳 [a,b,tx,ty]：x'=a x - b y + tx, y'=b x + a y + ty
+function simFit(src,dst){const ms=center(src),md=center(dst);let num1=0,num2=0,den=0;for(let i=0;i<src.length;i++){const sx=src[i][0]-ms[0],sy=src[i][1]-ms[1],dx=dst[i][0]-md[0],dy=dst[i][1]-md[1];num1+=sx*dx+sy*dy;num2+=sx*dy-sy*dx;den+=sx*sx+sy*sy}const a=den?num1/den:1,b=den?num2/den:0;return[a,b,md[0]-(a*ms[0]-b*ms[1]),md[1]-(b*ms[0]+a*ms[1])]}
+function applyT(T,p){return[T[0]*p[0]-T[1]*p[1]+T[2],T[1]*p[0]+T[0]*p[1]+T[3]]}
+function mkCanvas(w=W,h=H){const c=document.createElement('canvas');c.width=w;c.height=h;return c}
+
+/* ---------- 臉部辨識 ---------- */
+let landmarker=null;
+async function getLandmarker(){
+  if(landmarker)return landmarker;
+  const mp=await import(CONFIG.mpBundle);
+  const fs=await mp.FilesetResolver.forVisionTasks(CONFIG.mpWasm);
+  const opts=d=>({baseOptions:{modelAssetPath:CONFIG.mpModel,delegate:d},runningMode:'IMAGE',numFaces:1});
+  try{landmarker=await mp.FaceLandmarker.createFromOptions(fs,opts('GPU'))}catch(e){landmarker=await mp.FaceLandmarker.createFromOptions(fs,opts('CPU'))}
+  return landmarker;
+}
+function loadImg(src){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('讀不到這張圖'));i.src=src})}
+async function fileToCanvas(file){
+  const url=URL.createObjectURL(file);
+  try{const img=await loadImg(url);const s=Math.min(1,1280/Math.max(img.naturalWidth,img.naturalHeight));const c=mkCanvas(Math.round(img.naturalWidth*s),Math.round(img.naturalHeight*s));c.getContext('2d').drawImage(img,0,0,c.width,c.height);return c}
+  finally{URL.revokeObjectURL(url)}
+}
+// 偵測並轉正：回傳 {canvas(360x450 標準臉), lm(標準座標)}
+async function detectAndAlign(src){
+  const lmk=await getLandmarker();
+  const r=lmk.detect(src);
+  if(!r.faceLandmarks||!r.faceLandmarks.length)throw new Error('找不到臉，換一張正面、亮一點的照片試試');
+  const raw=r.faceLandmarks[0].map(p=>[p.x*src.width,p.y*src.height]);
+  let a=center(ptsOf(raw,'eyeA')),b=center(ptsOf(raw,'eyeB'));
+  if(a[0]>b[0])[a,b]=[b,a];
+  const eyeDist=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  if(eyeDist<24)throw new Error('臉太小了，靠近一點再拍');
+  const T=simFit([a,b],[EYE_L,EYE_R]);
+  const c=mkCanvas(),x=c.getContext('2d');
+  x.fillStyle='#d9cfc4';x.fillRect(0,0,W,H);
+  x.setTransform(T[0],T[1],-T[1],T[0],T[2],T[3]);x.imageSmoothingQuality='high';x.drawImage(src,0,0);x.setTransform(1,0,0,1,0,0);
+  const lm=raw.map(p=>applyT(T,p).map(v=>Math.round(v*10)/10));
+  return{canvas:c,lm};
+}
+
+/* ---------- 拼貼 ---------- */
+function maskFor(polys,blur){
+  const m=mkCanvas(),x=m.getContext('2d');
+  const canFilter='filter' in x;
+  if(canFilter){x.filter=`blur(${blur}px)`}
+  x.fillStyle='#000';
+  for(const P of polys){x.beginPath();P.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();x.fill()}
+  if(!canFilter){ // 沒有 filter 的瀏覽器：縮小再放大做柔邊
+    const s=mkCanvas(W/4,H/4),sx=s.getContext('2d');sx.imageSmoothingEnabled=true;sx.drawImage(m,0,0,W/4,H/4);x.clearRect(0,0,W,H);x.imageSmoothingEnabled=true;x.drawImage(s,0,0,W,H)}
+  return m;
+}
+// donor: {canvas, lm}；把 donor 的 part 貼到 base（ctx, lm）
+function pastePart(ctx,baseLm,donor,part){
+  const idx=partIdx(part);
+  const T=simFit(idx.map(i=>donor.lm[i]),idx.map(i=>baseLm[i]));
+  const polys=partPolys(baseLm,part);
+  const bb=bboxOf(polys,PARTS[part].blur*2+2);
+  const w=mkCanvas(),wx=w.getContext('2d',{willReadFrequently:true});
+  wx.setTransform(T[0],T[1],-T[1],T[0],T[2],T[3]);wx.drawImage(donor.canvas,0,0);wx.setTransform(1,0,0,1,0,0);
+  const mask=maskFor(polys,PARTS[part].blur);
+  // 膚色校正：用柔邊帶（大多是皮膚）比較平均色
+  const md=mask.getContext('2d').getImageData(bb.x,bb.y,bb.w,bb.h).data;
+  const wd=wx.getImageData(bb.x,bb.y,bb.w,bb.h);const bd=ctx.getImageData(bb.x,bb.y,bb.w,bb.h).data;
+  let n=0,sw=[0,0,0],sb=[0,0,0];
+  for(let i=0;i<md.length;i+=4){const a=md[i+3];if(a>15&&a<150&&wd.data[i+3]>200){n++;for(let k=0;k<3;k++){sw[k]+=wd.data[i+k];sb[k]+=bd[i+k]}}}
+  if(n>20){const d=sw.map((v,k)=>(sb[k]-v)/n*0.9);for(let i=0;i<wd.data.length;i+=4){for(let k=0;k<3;k++)wd.data[i+k]=Math.max(0,Math.min(255,wd.data[i+k]+d[k]))}wx.putImageData(wd,bb.x,bb.y)}
+  wx.globalCompositeOperation='destination-in';wx.drawImage(mask,0,0);
+  ctx.drawImage(w,0,0);
+}
+// plan: {face:donor, brow:donor, ...}（donor 為 null 表示沿用底圖）
+function compose(plan,out){
+  const ctx=out.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H);
+  const base=plan.face;ctx.drawImage(base.canvas,0,0);
+  for(const p of PASTE_ORDER){const d=plan[p];if(d&&d!==base)pastePart(ctx,base.lm,d,p)}
+}
+
+/* ---------- 題目 ---------- */
+const QS=[
+ ['週末沒有任何安排，你會？',['衝出門找人吃飯','看心情，可能出去可能耍廢','在家躺到天荒地老']],
+ ['出國旅行的行程表？',['Excel 排到每 30 分鐘','大概知道要去哪就好','落地再說']],
+ ['朋友跟你哭訴失戀，你第一句話？',['「他哪裡不好，我們來分析」','「先吃東西，邊吃邊說」','「嗚嗚嗚我也好難過」']],
+ ['路邊有個沒看過的怪食物？',['馬上買來吃','看別人吃完再決定','我只吃我吃過的']],
+ ['你理想的約會？',['夜景＋燭光晚餐','一起打電動吃鹹酥雞','各自滑手機但待在一起']],
+ ['群組裡你通常是？',['講幹話的那個','偶爾冒出來接梗','已讀不回的那個']],
+ ['突然多了一萬塊？',['馬上花掉，人生苦短','存一半花一半','全部存起來或投資']],
+ ['你的作息？',['早上 6 點自然醒','正常人作息','凌晨 3 點最有精神']]
+];
+// 個性分數：0,1,2 → -1,0,1
+const vecOf=ans=>ans.split('').map(c=>+c-1);
+function sim(a,b){let s=0;for(let i=0;i<8;i++)s+=Math.abs(a[i]-b[i]);return 1-s/16}
+// 對象：價值觀(2,4,6,7)要像，個性(0,1,3,5)互補
+function partnerScore(a,b){let s=0;for(const i of[2,4,6,7])s+=1-Math.abs(a[i]-b[i])/2;for(const i of[0,1,3,5])s+=Math.abs(a[i]-b[i])/2*0.8+0.1;return s/8}
+const MODES={
+  partner:{emoji:'💘',name:'未來對象',desc:'個性互補、價值觀相同',lbl:'速配指數',score:(a,b)=>partnerScore(a,b)},
+  friend:{emoji:'🤝',name:'最適合的朋友',desc:'跟你最像的一群人',lbl:'麻吉指數',score:(a,b)=>sim(a,b)},
+  foe:{emoji:'⚔️',name:'你的天敵',desc:'跟你最合不來的人',lbl:'相剋指數',score:(a,b)=>1-sim(a,b)},
+  kid:{emoji:'👶',name:'你家小孩',desc:'你＋未來對象的基因',lbl:'像你程度',score:(a,b)=>partnerScore(a,b)}
+};
+const LINES={
+  partner:['這張臉會在某個下雨天跟你共撐一把傘。','你們第一次見面會在全家的微波爐前面。','看起來很難搞？沒錯，但只對你好。','先說好，他吃鹹酥雞不加九層塔。'],
+  friend:['這張臉會半夜三點傳迷因給你。','你們會一起罵同一個人罵十年。','借錢不用還的那種朋友（希望）。','你們的合照永遠有一個人閉眼。'],
+  foe:['這張臉會在捷運上站在你正前方滑手機。','他會在你排隊排到的時候剛好買走最後一個。','群組裡永遠回你「？」的人。','遠離這張臉，運勢 +30%。'],
+  kid:['眼睛像你，脾氣也像你，請節哀。','這孩子三歲就會跟你頂嘴。','長得這樣，以後大概很會讀書（或很會打電動）。','爸媽的優點都沒遺傳到，但缺點全拿了。']
+};
+
+/* ---------- 狀態 ---------- */
+const S={me:null,answers:'',q:0,mode:'partner',cloud:[],friends:[],cache:new Map(),last:null,given:store.get('pinlian-given')};
+
+function show(id){for(const s of['sHome','sLoad','sGot','sQ','sHub','sRes'])$(s).classList.toggle('hide',s!==id);window.scrollTo(0,0)}
+function thumb(canvas,lm,part){
+  const bb=part==='face'?{x:30,y:40,w:300,h:300}:bboxOf(partPolys(lm,part),6);const s=Math.max(bb.w,bb.h);
+  const c=mkCanvas(120,120),x=c.getContext('2d');x.fillStyle='#eee';x.fillRect(0,0,120,120);
+  x.drawImage(canvas,bb.x+bb.w/2-s/2,bb.y+bb.h/2-s/2,s,s,0,0,120,120);return c.toDataURL('image/jpeg',.8)}
+
+/* ---------- 拍照流程 ---------- */
+async function handleSelf(file){
+  if(!file)return;show('sLoad');$('loadTxt').textContent='正在找你的五官⋯';
+  try{
+    const src=await fileToCanvas(file);
+    const r=await detectAndAlign(src);
+    S.me={id:'me',name:'你',canvas:r.canvas,lm:r.lm,src:'me'};
+    store.set('pinlian-me',{img:r.canvas.toDataURL('image/jpeg',.85),lm:r.lm});
+    drawMe();show('sGot');
+  }catch(e){show('sHome');alert(e.message||'辨識失敗，換一張試試')}
+}
+function drawMe(){
+  const x=$('cvMe').getContext('2d');x.drawImage(S.me.canvas,0,0);
+  x.fillStyle='rgba(232,67,58,.85)';
+  for(const k of['eyeA','eyeB','browA','browB','nose','mouth'])for(const p of ptsOf(S.me.lm,k)){x.beginPath();x.arc(p[0],p[1],1.6,0,7);x.fill()}
+  $('myParts').innerHTML=SLOT_ORDER.map(p=>`<div class="part on"><img src="${thumb(S.me.canvas,S.me.lm,p)}" alt="">${SLOT_NAME[p].replace('＋髮型','')}</div>`).join('');
+}
+$('bCam').onclick=()=>$('fCam').click();
+$('bPick').onclick=()=>$('fPick').click();
+$('fCam').onchange=e=>{handleSelf(e.target.files[0]);e.target.value=''};
+$('fPick').onchange=e=>{handleSelf(e.target.files[0]);e.target.value=''};
+$('bRetake').onclick=()=>show('sHome');
+$('bToQ').onclick=()=>{S.q=0;S.answers='';renderQ();show('sQ')};
+
+/* ---------- 問題 ---------- */
+function renderQ(){
+  const [q,opts]=QS[S.q];
+  $('qBar').style.width=(S.q/QS.length*100)+'%';
+  $('qNum').textContent=`第 ${S.q+1} / ${QS.length} 題`;$('qText').textContent=q;
+  $('qOpts').innerHTML=opts.map((o,i)=>`<button class="opt" data-v="${i}">${o}</button>`).join('');
+}
+$('qOpts').onclick=e=>{const b=e.target.closest('.opt');if(!b)return;S.answers+=b.dataset.v;S.q++;
+  if(S.q<QS.length)renderQ();else{store.set('pinlian-ans',S.answers);enterHub()}};
+
+/* ---------- 主選單 ---------- */
+function enterHub(){S.me.answers=S.answers;S.me.vec=vecOf(S.answers);renderModes();renderDonate();renderFriends();show('sHub');Cloud.loadPool().then(updatePoolInfo)}
+function renderModes(){$('modes').innerHTML=Object.entries(MODES).map(([k,m])=>`<button class="mode" data-m="${k}"><b>${m.emoji} ${m.name}</b><span>${m.desc}</span></button>`).join('')}
+$('modes').onclick=e=>{const b=e.target.closest('.mode');if(!b)return;S.mode=b.dataset.m;run(false)};
+function updatePoolInfo(){
+  const n=S.cloud.length,f=S.friends.length;
+  $('poolInfo').innerHTML=Cloud.ok===false?'⚠️ 暫時連不到雲端，只能用你和朋友的照片拼。':
+    `目前有 <b>${n}</b> 位玩家捐了五官${f?`，加上你的 ${f} 位朋友`:''}。${n+f<3?'人還很少，拼出來可能有不少是你自己的五官——加朋友照片或分享給朋友會更好玩！':''}`;
+}
+
+/* ---------- 挑五官 ---------- */
+function candidates(){return S.cloud.concat(S.friends)}
+function pickPlan(mode,roll){
+  const me=S.me,score=MODES[mode].score;
+  const pool=candidates().map(d=>({d,s:d.vec?score(me.vec,d.vec):0.45+Math.random()*0.3}));
+  const used=new Map();
+  const pick=slot=>{
+    const c=pool.filter(o=>o.d.share.includes(slot));if(!c.length)return null;
+    const r=c.map(o=>({o,v:o.s*100+(roll?Math.random()*18:0)-(used.get(o.d.id)||0)*12})).sort((a,b)=>b.v-a.v);
+    const top=r.slice(0,Math.min(3,r.length));const ch=roll?top[Math.floor(Math.random()*top.length)].o:top[0].o;
+    used.set(ch.d.id,(used.get(ch.d.id)||0)+1);return ch;
+  };
+  const plan={},who={};let tot=0,cnt=0;
+  for(const slot of SLOT_ORDER){const ch=pick(slot);if(ch){plan[slot]=ch.d;who[slot]=ch.d;tot+=ch.s;cnt++}else{plan[slot]=null;who[slot]=null}}
+  if(mode==='kid'){ // 2~4 個部位換成你的
+    const k=2+Math.floor(Math.random()*3);const sl=SLOT_ORDER.slice().sort(()=>Math.random()-.5).slice(0,k);
+    for(const s of sl){plan[s]=me;who[s]=me}
+  }
+  if(!plan.face){plan.face=me;who.face=me}
+  for(const s of SLOT_ORDER)if(!plan[s]){plan[s]=null;who[s]=null}
+  let pct=cnt?tot/cnt:0.5;
+  if(mode==='kid')pct=SLOT_ORDER.filter(s=>who[s]===me||(who[s]===null&&plan.face===me)).length/5;
+  return{plan,who,pct:Math.round(Math.max(.05,Math.min(.99,pct))*100)};
+}
+async function run(roll){
+  show('sLoad');$('loadTxt').textContent='正在拼臉⋯';
+  try{
+    let res=pickPlan(S.mode,roll);
+    // 下載雲端被選中的人的照片
+    const need=[...new Set(Object.values(res.plan).filter(d=>d&&d.src==='cloud'&&!d.canvas))];
+    await Promise.all(need.map(d=>Cloud.loadFace(d)));
+    for(const s of SLOT_ORDER){const d=res.plan[s];if(d&&!d.canvas){res.plan[s]=s==='face'?S.me:null;res.who[s]=s==='face'?S.me:null}}
+    compose(res.plan,$('cvRes'));S.last=res;renderResult(res);show('sRes');
+  }catch(e){console.error(e);show('sHub');alert('拼臉失敗：'+(e.message||e))}
+}
+function renderResult(res){
+  const m=MODES[S.mode];
+  $('resTag').textContent=m.emoji+' '+m.name;
+  $('resTitle').textContent=S.mode==='kid'?'你家小孩大概長這樣':S.mode==='foe'?'離這張臉遠一點':S.mode==='friend'?'你的命定麻吉長這樣':'你的未來對象長這樣';
+  $('resScore').textContent=res.pct+'%';$('resScoreLbl').textContent=m.lbl;
+  const L=LINES[S.mode];$('resQuote').textContent=L[Math.floor(Math.random()*L.length)];
+  $('resCredits').innerHTML=SLOT_ORDER.map(s=>{const d=res.who[s]||res.plan.face;const nm=d===S.me?'你自己':esc(d.name)+(d.src==='friend'?'（朋友）':'');return`<dt>${SLOT_NAME[s]}</dt><dd>${nm}</dd>`}).join('');
+  const mine=SLOT_ORDER.filter(s=>(res.who[s]||res.plan.face)===S.me).length;
+  $('resNote').textContent=S.mode!=='kid'&&mine>=3?'捐五官的人還不夠多，所以有不少部位先用你自己的。加入朋友照片或分享出去，拼出來會更準！':'';
+  $('shareImg').classList.add('hide');$('shareHint').classList.add('hide');
+}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+$('bAgain').onclick=()=>run(true);
+$('bBack').onclick=()=>{updatePoolInfo();show('sHub')};
+$('bRestart').onclick=()=>{store.del('pinlian-me');store.del('pinlian-ans');$('bResume').classList.add('hide');show('sHome')};
+
+/* ---------- 分享圖 ---------- */
+$('bShare').onclick=async()=>{
+  const res=S.last,m=MODES[S.mode];if(!res)return;
+  const c=mkCanvas(720,1080),x=c.getContext('2d');
+  x.fillStyle='#fff6ea';x.fillRect(0,0,720,1080);
+  x.fillStyle='#2a1d14';x.font='900 44px "PingFang TC","Noto Sans TC",sans-serif';x.textAlign='center';
+  x.fillText(m.emoji+' '+$('resTitle').textContent,360,80);
+  x.save();x.beginPath();x.roundRect?x.roundRect(120,110,480,600,28):x.rect(120,110,480,600);x.clip();x.drawImage($('cvRes'),120,110,480,600);x.restore();
+  x.lineWidth=5;x.beginPath();x.roundRect?x.roundRect(120,110,480,600,28):x.rect(120,110,480,600);x.stroke();
+  x.fillStyle='#e8433a';x.font='900 64px sans-serif';x.fillText(res.pct+'%',360,790);
+  x.fillStyle='#7a6555';x.font='600 26px "PingFang TC",sans-serif';x.fillText(m.lbl,360,826);
+  x.fillStyle='#2a1d14';x.font='700 28px "PingFang TC",sans-serif';
+  const cr=SLOT_ORDER.map(s=>{const d=res.who[s]||res.plan.face;return SLOT_NAME[s].replace('＋髮型','')+'：'+(d===S.me?'我':d.name)});
+  x.fillText(cr.slice(0,3).join('　'),360,880);x.fillText(cr.slice(3).join('　'),360,922);
+  x.fillStyle='#2a1d14';x.font='700 26px "PingFang TC",sans-serif';x.fillText('「'+$('resQuote').textContent+'」',360,980,660);
+  x.fillStyle='#7a6555';x.font='600 24px sans-serif';x.fillText('拼臉所 · '+location.host+location.pathname.replace(/index\.html$/,''),360,1045);
+  const url=c.toDataURL('image/png');
+  try{if(navigator.canShare){const blob=await (await fetch(url)).blob();const f=new File([blob],'pinlian.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'拼臉所',text:'我用拼臉所拼出了'+m.name+'的臉 '+location.href});return}}}catch(e){if(e&&e.name==='AbortError')return}
+  $('shareImg').src=url;$('shareImg').classList.remove('hide');$('shareHint').classList.remove('hide');
+};
+
+/* ---------- 朋友（只在本機） ---------- */
+function renderFriends(){$('friendList').innerHTML=S.friends.map((f,i)=>`<span class="friend"><img src="${f.thumb}" alt="">${esc(f.name)}<button data-i="${i}" aria-label="移除">✕</button></span>`).join('')||'<span class="sub">還沒有加朋友</span>'}
+$('friendList').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.friends.splice(+b.dataset.i,1);renderFriends();updatePoolInfo()};
+$('bFriend').onclick=()=>{if(!$('frName').value.trim()){$('frMsg').className='msg err';$('frMsg').textContent='先輸入朋友的名字';return}$('fFriend').click()};
+$('fFriend').onchange=async e=>{
+  const file=e.target.files[0];e.target.value='';if(!file)return;
+  const name=$('frName').value.trim().slice(0,12);$('frMsg').className='msg';$('frMsg').textContent='辨識中⋯';
+  try{const r=await detectAndAlign(await fileToCanvas(file));
+    S.friends.push({id:'f'+Date.now(),name,canvas:r.canvas,lm:r.lm,share:SLOT_ORDER.slice(),src:'friend',vec:null,thumb:thumb(r.canvas,r.lm,'face')});
+    $('frName').value='';$('frMsg').textContent=`已加入 ${name}（個性未知，會隨機配）`;renderFriends();updatePoolInfo();
+  }catch(err){$('frMsg').className='msg err';$('frMsg').textContent=err.message}
+};
+
+/* ---------- 捐五官 ---------- */
+let donSel=new Set(S.given?S.given.share:[]);
+function renderDonate(){
+  $('donParts').innerHTML=SLOT_ORDER.map(p=>`<label class="part${donSel.has(p)?' on':''}"><img src="${thumb(S.me.canvas,S.me.lm,p)}" alt=""><input type="checkbox" data-p="${p}"${donSel.has(p)?' checked':''}>${SLOT_NAME[p].replace('＋髮型','')}</label>`).join('');
+  $('faceWarn').textContent=donSel.has('face')?'⚠️ 捐「臉型」等於分享整張臉（當別人拼臉的底圖），別人會看到你完整的樣子。':'';
+  if(S.given){$('donName').value=S.given.name;$('bTake').classList.remove('hide');$('bGive').textContent='更新我捐的五官'}
+}
+$('donParts').onchange=e=>{const c=e.target;if(!c.dataset.p)return;c.checked?donSel.add(c.dataset.p):donSel.delete(c.dataset.p);
+  if(donSel.has('face'))SLOT_ORDER.forEach(p=>donSel.add(p));renderDonate()};
+$('bGive').onclick=async()=>{
+  const msg=$('donMsg');msg.className='msg err';
+  const name=$('donName').value.trim();
+  if(!donSel.size)return msg.textContent='至少勾一個部位';
+  if(!name)return msg.textContent='填一個暱稱';
+  if(!$('donAdult').checked||!$('donAgree').checked)return msg.textContent='請勾選上面兩個同意';
+  msg.className='msg';msg.textContent='上傳中⋯';
+  try{const share=SLOT_ORDER.filter(p=>donSel.has(p));await Cloud.give(name,share);S.given={name,share};store.set('pinlian-given',S.given);
+    msg.textContent='捐好了！之後別人拼臉就可能用到你的五官。';renderDonate();Cloud.loadPool(true).then(updatePoolInfo)}
+  catch(e){msg.className='msg err';msg.textContent='上傳失敗：'+(e.message||e)}
+};
+$('bTake').onclick=async()=>{
+  const msg=$('donMsg');msg.className='msg';msg.textContent='刪除中⋯';
+  try{await Cloud.take();S.given=null;store.del('pinlian-given');donSel.clear();$('bTake').classList.add('hide');$('bGive').textContent='捐出去';renderDonate();msg.textContent='已經從雲端刪除了。';Cloud.loadPool(true).then(updatePoolInfo)}
+  catch(e){msg.className='msg err';msg.textContent='刪除失敗：'+(e.message||e)}
+};
+
+/* ---------- 雲端 ---------- */
+const Cloud={sb:null,ok:null,uid:null,loaded:false,
+  async init(){
+    if(this.sb&&this.uid)return this.sb;
+    if(!window.supabase)await new Promise((ok,no)=>{const s=document.createElement('script');s.src=CONFIG.sbSrc;s.onload=ok;s.onerror=()=>no(new Error('連不到雲端'));document.head.appendChild(s)});
+    if(!this.sb)this.sb=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'pinlian-auth'}});
+    let{data:{session}}=await this.sb.auth.getSession();
+    if(!session){const r=await this.sb.auth.signInAnonymously();if(r.error)throw r.error;session=r.data.session}
+    this.uid=session.user.id;this.ok=true;return this.sb;
+  },
+  async loadPool(force){
+    if(this.loaded&&!force)return;
+    try{const sb=await this.init();
+      const{data,error}=await sb.from('photo_faces').select('user_id,name,answers,share').neq('user_id',this.uid).order('updated_at',{ascending:false}).limit(300);
+      if(error)throw error;
+      S.cloud=data.map(r=>({id:r.user_id,name:r.name,share:r.share.split(','),vec:vecOf(r.answers),src:'cloud'}));this.loaded=true;
+    }catch(e){console.warn(e);this.ok=false}
+  },
+  async loadFace(d){
+    if(S.cache.has(d.id)){Object.assign(d,S.cache.get(d.id));return}
+    const sb=await this.init();
+    const{data,error}=await sb.from('photo_faces').select('lm,imgs').eq('user_id',d.id).single();
+    if(error)throw error;
+    const lm=JSON.parse(data.lm),c=mkCanvas(),x=c.getContext('2d');
+    if(data.imgs.full){x.drawImage(await loadImg(data.imgs.full),0,0,W,H)}
+    else for(const[p,o]of Object.entries(data.imgs.parts||{}))x.drawImage(await loadImg(o.d),o.x,o.y);
+    const v={canvas:c,lm};S.cache.set(d.id,v);Object.assign(d,v);
+  },
+  async give(name,share){
+    const sb=await this.init(),me=S.me;let imgs;
+    if(share.includes('face'))imgs={full:me.canvas.toDataURL('image/jpeg',.82)};
+    else{imgs={parts:{}};for(const p of share){const bb=bboxOf(partPolys(me.lm,p),PARTS[p].blur*2+16);const c=mkCanvas(bb.w,bb.h);c.getContext('2d').drawImage(me.canvas,bb.x,bb.y,bb.w,bb.h,0,0,bb.w,bb.h);imgs.parts[p]={x:bb.x,y:bb.y,d:c.toDataURL('image/jpeg',.85)}}}
+    const lm=JSON.stringify(me.lm.map(p=>[Math.round(p[0]),Math.round(p[1])]));
+    const{error}=await sb.from('photo_faces').upsert({user_id:this.uid,name,answers:S.answers,share:share.join(','),lm,imgs,adult:true,updated_at:new Date().toISOString()});
+    if(error)throw error;
+  },
+  async take(){const sb=await this.init();const{error}=await sb.from('photo_faces').delete().eq('user_id',this.uid);if(error)throw error}
+};
+
+/* ---------- 回到上次 ---------- */
+(function resume(){
+  const me=store.get('pinlian-me'),ans=store.get('pinlian-ans');
+  if(!me||!me.img)return;
+  $('bResume').classList.remove('hide');
+  $('bResume').onclick=async()=>{const c=mkCanvas();c.getContext('2d').drawImage(await loadImg(me.img),0,0);S.me={id:'me',name:'你',canvas:c,lm:me.lm,src:'me'};
+    if(ans&&/^[0-2]{8}$/.test(ans)){S.answers=ans;enterHub()}else{drawMe();show('sGot')}};
+})();
+// 預先載入模型，拍完照比較快
+setTimeout(()=>{getLandmarker().catch(()=>{})},800);
+window.__pinlian={S,compose,pickPlan,detectAndAlign,Cloud,IDX,PARTS};
+</script>
+</body>
+</html>
