@@ -63,6 +63,20 @@ input[type=text]{width:100%;padding:11px;border:2px solid var(--ink);border-radi
 .spin{width:44px;height:44px;border:5px solid var(--line);border-top-color:var(--red);border-radius:50%;animation:sp 1s linear infinite;margin:18px auto}
 @keyframes sp{to{transform:rotate(360deg)}}
 details summary{cursor:pointer;font-weight:800}
+/* 推薦小物 / 互推 / 廣告 */
+.shop{margin-top:14px;border-top:2px dashed var(--line);padding-top:12px}
+.shop h3{font-size:1rem;margin:0 0 8px}
+.shopList{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.shopList a{display:flex;align-items:center;gap:8px;padding:10px;border:2px solid var(--ink);border-radius:12px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700;font-size:.92rem}
+.shopList a span{font-size:1.4rem}
+.shopNote{font-size:.72rem;color:var(--sub);margin-top:6px}
+.tipLink{color:var(--red);font-weight:700}
+.more{display:grid;gap:8px}
+.more a{display:flex;gap:10px;align-items:center;padding:10px 12px;border:2px solid var(--ink);border-radius:12px;background:#fff;color:var(--ink);text-decoration:none}
+.more a b{display:block}.more a small{color:var(--sub)}
+.more a span{font-size:1.6rem}
+#adSlot:empty{display:none}
+#adSlot{margin:14px 0;text-align:center}
 footer{text-align:center;font-size:.8rem;color:var(--sub);margin-top:24px}
 footer a{color:var(--sub)}
 </style>
@@ -78,7 +92,7 @@ footer a{color:var(--sub)}
   <div class="steps"><div><b>📸</b>拍自拍</div><div><b>📝</b>答 8 題</div><div><b>🧩</b>選模式</div><div><b>😱</b>看臉</div></div>
   <div class="card">
     <h2>先來一張正面自拍</h2>
-    <p class="sub">正面、光線亮、瀏海不要蓋住眉毛，效果最好。</p>
+    <p class="sub">正面、光線亮、瀏海不要蓋住眉毛，效果最好。<a class="tipLink" id="lightLink" target="_blank" rel="noopener sponsored">晚上太暗？自拍補光燈 ↗</a></p>
     <button class="btn" id="bCam">📸 開相機拍一張</button>
     <button class="btn alt" id="bPick">🖼️ 從相簿選照片</button>
     <input type="file" id="fCam" accept="image/*" capture="user" class="hide">
@@ -169,12 +183,18 @@ footer a{color:var(--sub)}
       <button class="btn" id="bAgain">🎲 再拼一次</button>
       <button class="btn alt" id="bBack">換個模式</button>
     </div>
+    <div class="shop" id="shopBox"></div>
     <button class="btn red" id="bShare">📤 存圖／分享</button>
     <img id="shareImg" class="hide" alt="分享圖">
     <p class="sub hide" id="shareHint">長按圖片可以存到相簿。</p>
   </div>
 </section>
 
+<div id="adSlot"></div>
+<div class="card">
+  <h2>無聊的話再玩這些</h2>
+  <div class="more" id="moreList"></div>
+</div>
 <footer>
   拼臉所 · 照片在你的裝置上處理 · 臉部辨識使用 Google MediaPipe<br>
   捐出的五官可隨時收回 · 只限 18 歲以上本人照片
@@ -189,7 +209,23 @@ const CONFIG=Object.assign({
   mpBundle:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs',
   mpWasm:'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm',
   mpModel:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-  sbSrc:'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'
+  sbSrc:'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js',
+  // 蝦皮分潤連結（Sub_id1=pinlian）
+  light:'https://s.shopee.tw/LoVHpjDQR',
+  shop:{
+    partner:{t:'先把見面禮準備好',items:[['💍','情侶對戒','https://s.shopee.tw/qklskhJPY'],['🎁','情侶禮物','https://s.shopee.tw/gRLgRhwkX'],['🌸','約會香水','https://s.shopee.tw/1BNcHMg2je']]},
+    friend:{t:'跟這位麻吉的必備',items:[['🎁','交換禮物','https://s.shopee.tw/114C53gg4d'],['🎲','派對桌遊','https://s.shopee.tw/1Lh2Th5P3I']]},
+    foe:{t:'防天敵裝備',items:[['📿','開運手鍊（擋小人）','https://s.shopee.tw/1W0Sg04liL'],['🎧','降噪耳塞（聽不到他）','https://s.shopee.tw/1gJssJ48NO']]},
+    kid:{t:'先幫小孩準備一下',items:[['👶','嬰兒連身衣','https://s.shopee.tw/1qdJ4c3V2R'],['🧸','寶寶玩具','https://s.shopee.tw/20wjGv2rhU']]}
+  },
+  // 你的其他作品（互相導流）
+  more:[
+    ['🎭','打破三觀只留五官','捏一張像你的卡通臉，鑑定你的靈魂','https://fanplaylab.itch.io/wuguan'],
+    ['🍜','附近難波萬','像交友軟體一樣左右滑，決定今天吃什麼','https://onlyhandrubbing.github.io/nanbawan/'],
+    ['🇭🇰','香港 4 天 3 夜試算','選行程包、自動算預算和路線','https://onlyhandrubbing.github.io/hk-trip/']
+  ],
+  // 之後申請到廣告聯播，把廣告代碼（HTML）貼在這裡
+  adHtml:''
 },window.PINLIAN_CONFIG||{});
 
 const $=id=>document.getElementById(id);
@@ -426,6 +462,8 @@ function renderResult(res){
   const mine=SLOT_ORDER.filter(s=>(res.who[s]||res.plan.face)===S.me).length;
   $('resNote').textContent=S.mode!=='kid'&&mine>=3?'捐五官的人還不夠多，所以有不少部位先用你自己的。加入朋友照片或分享出去，拼出來會更準！':'';
   $('shareImg').classList.add('hide');$('shareHint').classList.add('hide');
+  const sh=CONFIG.shop&&CONFIG.shop[S.mode];
+  $('shopBox').innerHTML=sh?`<h3>🛍️ ${sh.t}</h3><div class="shopList">${sh.items.map(([e,n,u])=>`<a href="${u}" target="_blank" rel="noopener sponsored"><span>${e}</span>${n}</a>`).join('')}</div><p class="shopNote">蝦皮分潤連結，透過連結購買我會拿到一點分潤，你不會多付錢。</p>`:'';
 }
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 $('bAgain').onclick=()=>run(true);
@@ -539,6 +577,10 @@ const Cloud={sb:null,ok:null,uid:null,loaded:false,
   $('bResume').onclick=async()=>{const c=mkCanvas();c.getContext('2d').drawImage(await loadImg(me.img),0,0);S.me={id:'me',name:'你',canvas:c,lm:me.lm,src:'me'};
     if(ans&&/^[0-2]{8}$/.test(ans)){S.answers=ans;enterHub()}else{drawMe();show('sGot')}};
 })();
+// 補光燈、互推、廣告位
+if(CONFIG.light)$('lightLink').href=CONFIG.light;else $('lightLink').remove();
+$('moreList').innerHTML=(CONFIG.more||[]).map(([e,n,d,u])=>`<a href="${u}" target="_blank" rel="noopener"><span>${e}</span><div><b>${n}</b><small>${d}</small></div></a>`).join('');
+if(CONFIG.adHtml){const a=$('adSlot');a.innerHTML=CONFIG.adHtml;a.querySelectorAll('script').forEach(o=>{const n=document.createElement('script');[...o.attributes].forEach(at=>n.setAttribute(at.name,at.value));n.text=o.text;o.replaceWith(n)})}
 // 預先載入模型，拍完照比較快
 setTimeout(()=>{getLandmarker().catch(()=>{})},800);
 window.__pinlian={S,compose,pickPlan,detectAndAlign,Cloud,IDX,PARTS};
